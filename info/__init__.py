@@ -7,10 +7,12 @@ import redis
 from flask_wtf import CSRFProtect
 from config import config_dict
 from flask  import Flask
-from info.modules.index import index_blue
 
 # 创建SQLAlchemy对象
 db = SQLAlchemy()
+
+#定义redis
+redis_store = None
 
 #抽取工厂方法,根据参数生产不同环境下的app
 def create_app(config_name):
@@ -31,6 +33,7 @@ def create_app(config_name):
     db.init_app(app)
 
     #创建redis对象
+    global redis_store
     redis_store = redis.StrictRedis(host=config.REDIS_HOST,port=config.REDIS_PORT,decode_responses=True)
 
     #设置csrf对app进行保护
@@ -40,6 +43,7 @@ def create_app(config_name):
     Session(app)
 
     #注册蓝图到app对象
+    from info.modules.index import index_blue
     app.register_blueprint(index_blue)
 
     return app
