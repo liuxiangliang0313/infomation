@@ -5,6 +5,9 @@ from flask_wtf import CSRFProtect
 from config import config_dict
 from flask  import Flask
 
+# 创建SQLAlchemy对象
+db = SQLAlchemy()
+
 #抽取工厂方法,根据参数生产不同环境下的app
 def create_app(config_name):
     app = Flask(__name__)
@@ -15,8 +18,8 @@ def create_app(config_name):
     #从类中加载配置信息到app
     app.config.from_object(config)
 
-    #创建SQLAlchemy对象,关联app
-    db = SQLAlchemy(app)
+    #使用db,关联app
+    db.init_app(app)
 
     #创建redis对象
     redis_store = redis.StrictRedis(host=config.REDIS_HOST,port=config.REDIS_PORT,decode_responses=True)
