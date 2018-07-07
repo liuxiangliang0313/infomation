@@ -9,7 +9,7 @@
 
 """
 from flask import Flask,session,current_app
-from info import create_app,db
+from info import create_app,db,models
 from flask_migrate import Migrate,MigrateCommand
 from flask_script import Manager
 import logging
