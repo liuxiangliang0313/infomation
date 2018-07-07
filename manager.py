@@ -12,11 +12,17 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import redis
+from flask_wtf import CSRFProtect
 
 app = Flask(__name__)
 
 #配置信息
 class Config(object):
+
+    #设置SECRET_KEY,DEBUG
+    SECRET_KEY = "fjkdjfkd"
+    DEBUG = True
+
     #数据库配置
     SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:123456@127.0.0.1:3306/information12"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -34,7 +40,10 @@ db = SQLAlchemy(app)
 #创建redis对象
 redis_store = redis.StrictRedis(host=Config.REDIS_HOST,port=Config.REDIS_PORT,decode_responses=True)
 
-@app.route('/')
+#设置csrf对app进行保护
+CSRFProtect(app)
+
+@app.route('/',methods=["GET",'POST'])
 def hello_world():
 
     #测试redis存储数据
@@ -43,4 +52,4 @@ def hello_world():
     return "helloworld100"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
