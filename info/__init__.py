@@ -7,6 +7,7 @@ import redis
 from flask_wtf import CSRFProtect
 from config import config_dict
 from flask  import Flask
+from info.modules.index import index_blue
 
 # 创建SQLAlchemy对象
 db = SQLAlchemy()
@@ -14,7 +15,7 @@ db = SQLAlchemy()
 #抽取工厂方法,根据参数生产不同环境下的app
 def create_app(config_name):
 
-
+    #创建app对象
     app = Flask(__name__)
 
     #根据config_name获取到配置对象
@@ -37,6 +38,9 @@ def create_app(config_name):
 
     #初始化Session
     Session(app)
+
+    #注册蓝图到app对象
+    app.register_blueprint(index_blue)
 
     return app
 
