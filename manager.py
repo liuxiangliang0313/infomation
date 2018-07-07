@@ -9,7 +9,8 @@
 
 """
 
-from flask import Flask
+from flask import Flask,session
+from flask_session import Session #只是用来指定session存储数据的位置
 from flask_sqlalchemy import SQLAlchemy
 import redis
 from flask_wtf import CSRFProtect
@@ -31,6 +32,14 @@ class Config(object):
     REDIS_HOST = "127.0.0.1"
     REDIS_PORT = 6379
 
+    #配置session存储信息
+    SESSION_TYPE = "redis" #指定存储类型
+    SESSION_PERMANENT = False #需要过期
+    SESSION_USE_SIGNER = True #需要签名存储
+    SESSION_REDIS = redis.StrictRedis(REDIS_HOST,REDIS_PORT)
+    PERMANENT_SESSION_LIFETIME = 3600*24*2 #设置session过期时间2天, 单位秒
+
+
 #从类中加载配置信息到app
 app.config.from_object(Config)
 
@@ -43,11 +52,18 @@ redis_store = redis.StrictRedis(host=Config.REDIS_HOST,port=Config.REDIS_PORT,de
 #设置csrf对app进行保护
 CSRFProtect(app)
 
+#初始化Session
+Session(app)
+
 @app.route('/',methods=["GET",'POST'])
 def hello_world():
 
     #测试redis存储数据
-    redis_store.set("name","itcast")
+    # redis_store.set("name","itcast")
+
+    #使用session存储数据,以后专门用户存储用户登陆信息(比如:用户名,手机号)
+    session["name"] = "banzhang"
+    print(session.get("name"))
 
     return "helloworld100"
 
