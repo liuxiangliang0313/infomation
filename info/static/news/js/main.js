@@ -187,6 +187,55 @@ function sendSMSCode() {
     }
 
     // TODO 发送短信验证码
+    // 拼接参数
+    var params = {
+        "mobile":mobile,
+        "image_code":imageCode,
+        "image_code_id":imageCodeId
+    }
+
+    // 发送请求
+    $.ajax({
+        url:"/passport/sms_code",
+        type:"post",
+        data:JSON.stringify(params),
+        contentType:"application/json",
+        success: function (resp) {
+
+            //判断是否发送短信成功
+            if(resp.errno == "0"){
+                //倒计时描述
+                var num = 60;
+
+                var t = setInterval(function () {
+                    //判断倒计时是否结束
+                    if(num == 1){
+
+                        //清除定时器
+                        clearInterval(t)
+
+                        //重新设置按钮可以点击
+                        $(".get_code").attr("onclick","sendSMSCode()");
+                        $(".get_code").html("点击获取验证码")
+
+
+                    }else{
+                        num -= 1;
+                        //设置到标签中
+                        $(".get_code").html(num+"秒")
+                    }
+                    },1000)
+
+            }else{
+                //设置获取短信可以点击
+                $(".get_code").attr("onclick","sendSMSCode()");
+                //跟新短信验证码
+                generateImageCode()
+            }
+
+        }
+    })
+
 }
 
 // 调用该函数模拟点击左侧按钮

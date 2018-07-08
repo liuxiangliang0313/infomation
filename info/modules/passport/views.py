@@ -54,23 +54,24 @@ def send_message():
     if not redis_image_code:
         return jsonify(errno=RET.NODATA,errmsg="图片验证码过期")
 
-    # 6.判断图片验证码是否正确
-    if image_code != redis_image_code:
+    # 6.判断图片验证码是否正确,忽略大小写
+    if image_code.upper() != redis_image_code.upper():
         return jsonify(errno=RET.DATAERR,errmsg="图片填写错误")
 
     # 7.调用CCP发送短信方法
     sms_code = "%06d"%random.randint(0,999999) #生成6位数的随机短信验证码
-    try:
-        ccp = CCP()
-        #发送短信,有效期5分钟
-        result =  ccp.send_template_sms(mobile,[sms_code,constants.SMS_CODE_REDIS_EXPIRES/60],1)
-    except Exception as e:
-        current_app.logger.error(e)
-        return jsonify(errno=RET.THIRDERR,errmsg="云通讯发送异常")
-
-    # 8.判断短信是否发送成功
-    if result == -1:
-        return jsonify(errno=RET.DATAERR,errmsg="短信发送失败")
+    current_app.logger.error("短信验证码是 = %s"% sms_code )
+    # try:
+    #     ccp = CCP()
+    #     #发送短信,有效期5分钟
+    #     result =  ccp.send_template_sms(mobile,[sms_code,constants.SMS_CODE_REDIS_EXPIRES/60],1)
+    # except Exception as e:
+    #     current_app.logger.error(e)
+    #     return jsonify(errno=RET.THIRDERR,errmsg="云通讯发送异常")
+    #
+    # # 8.判断短信是否发送成功
+    # if result == -1:
+    #     return jsonify(errno=RET.DATAERR,errmsg="短信发送失败")
     
     # 9.保存短信到redis中
     try:
