@@ -149,6 +149,7 @@ $(function(){
 })
 
 var imageCodeId = ""
+var preImageCodeId = ""
 
 // TODO 生成一个图片验证码的编号，并设置页面中图片验证码img标签的src属性
 function generateImageCode() {
@@ -156,12 +157,14 @@ function generateImageCode() {
     // 生成随机字符串
     imageCodeId = generateUUID()
 
-    // 拼接请求地址
-    image_url = "/passport/image_code"
+    // 拼接请求地址 www.baidu.com?name=zhang&age=13
+    image_url = "/passport/image_code?cur_id="+imageCodeId + "&pre_id="+preImageCodeId
 
     // 将地址设置到img标签中, 只要往src里面放一个链接,会自动加载
     $(".get_pic_code").attr("src",image_url)
 
+    // 保存上一次的图片验证码编号
+    preImageCodeId = imageCodeId
 }
 
 // 发送短信验证码
