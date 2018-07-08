@@ -8,6 +8,55 @@ from . import passport_blue
 from info.utils.captcha.captcha import captcha
 import re
 
+#登陆用户
+# 请求路径: /passport/login
+# 请求方式: POST
+# 请求参数: mobile,password
+# 返回值: errno, errmsg
+@passport_blue.route('/login', methods=['POST'])
+def login():
+    """
+    思路分析:
+    1.获取参数
+    2.校验参数
+    3.根据手机号取出用户对象
+    4.判断密码正确性
+    5.将用户的登陆信息存到session
+    6.返回响应
+    :return: 
+    """
+    # 1.获取参数
+    dict_data = request.get_json()
+    mobile = dict_data.get("mobile")
+    password = dict_data.get("password")
+    
+    # 2.校验参数
+    if not all([mobile,password]):
+        return jsonify(errno=RET.PARAMERR,errmsg="参数不完整")
+    
+    # 3.根据手机号取出用户对象
+    try:
+        user = User.query.filter(User.mobile == mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="查询用户失败")
+    
+    #判断用户是否存在
+    if not user:
+        return jsonify(errno=RET.NODATA,errmsg="该用户不存在")
+    
+    # 4.判断密码正确性
+    if not user.check_passowrd(password):
+        return jsonify(errno=RET.DATAERR,errmsg="密码输入错误")
+    
+    # 5.将用户的登陆信息存到session
+    
+    
+    # 6.返回响应
+    return jsonify(errno=RET.OK,errmsg="登陆成功")
+    
+
+
 #注册用户
 # 请求路径: /passport/register
 # 请求方式: POST
@@ -66,8 +115,8 @@ def register():
 
     # 8.设置用户对象的属性信息
     user.nick_name = mobile
-    user.password_hash = password
     user.mobile = mobile
+    user.password = password
 
     # 9.保存用户到数据库
     try:
