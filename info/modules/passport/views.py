@@ -1,4 +1,4 @@
-from flask import request, current_app, jsonify, make_response, json
+from flask import request, current_app, jsonify, make_response, json, session
 import random
 from info import redis_store, constants, db
 from info.libs.yuntongxun.sms import CCP
@@ -50,6 +50,9 @@ def login():
         return jsonify(errno=RET.DATAERR,errmsg="密码输入错误")
     
     # 5.将用户的登陆信息存到session
+    session["user_id"] = user.id
+    session["nick_name"] = user.nick_name
+    session["mobile"] = user.mobile
     
     
     # 6.返回响应
