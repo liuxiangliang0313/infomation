@@ -8,6 +8,21 @@ from . import passport_blue
 from info.utils.captcha.captcha import captcha
 import re
 
+#退出登陆
+# 请求路径: /passport/logout
+# 请求方式: DELETE
+# 请求参数: 无
+# 返回值: errno, errmsg
+@passport_blue.route('/logout', methods=['DELETE'])
+def logout():
+
+    #清除session信息
+    session.pop("user_id",None)
+    session.pop("nick_name",None)
+    session.pop("mobile",None)
+
+    return jsonify(errno=RET.OK,errmsg="退出成功")
+
 #登陆用户
 # 请求路径: /passport/login
 # 请求方式: POST

@@ -194,6 +194,20 @@ $(function(){
     })
 })
 
+//退出登陆
+function logout() {
+
+    $.ajax({
+        url: '/passport/logout',
+        type: 'delete',
+        success: function (resp) {
+            location.href = '/'
+        }
+    })
+
+}
+
+
 var imageCodeId = ""
 var preImageCodeId = ""
 
