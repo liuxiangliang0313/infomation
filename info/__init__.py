@@ -46,6 +46,11 @@ def create_app(config_name):
     from info.modules.index import index_blue
     app.register_blueprint(index_blue)
 
+    #注册蓝图到app对象
+    from info.modules.passport import passport_blue
+    app.register_blueprint(passport_blue)
+
+    print(app.url_map)
     return app
 
 #配置日志记录信息,就是为了方便记录程序运行过程
