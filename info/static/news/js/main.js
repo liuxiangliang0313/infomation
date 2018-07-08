@@ -204,7 +204,7 @@ function sendSMSCode() {
 
             //判断是否发送短信成功
             if(resp.errno == "0"){
-                //倒计时描述
+                //倒计时秒数
                 var num = 60;
 
                 var t = setInterval(function () {
@@ -224,7 +224,7 @@ function sendSMSCode() {
                         //设置到标签中
                         $(".get_code").html(num+"秒")
                     }
-                    },1000)
+                    },1000) //1秒钟执行一次
 
             }else{
                 //设置获取短信可以点击

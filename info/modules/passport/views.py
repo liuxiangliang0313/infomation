@@ -1,11 +1,86 @@
 from flask import request, current_app, jsonify, make_response, json
 import random
-from info import redis_store, constants
+from info import redis_store, constants, db
 from info.libs.yuntongxun.sms import CCP
+from info.models import User
 from info.utils.response_code import RET
 from . import passport_blue
 from info.utils.captcha.captcha import captcha
 import re
+
+#注册用户
+# 请求路径: /passport/register
+# 请求方式: POST
+# 请求参数: mobile, sms_code,password
+# 返回值: errno, errmsg
+@passport_blue.route('/register', methods=['POST'])
+def register():
+    """
+    1.获取参数
+    2.校验参数,为空校验
+    3.手机号格式校验
+    4.根据手机号取出redis中的短信验证码
+    5.判断短信验证码是否过期
+    6.校验短信验证码是否正确
+    7.创建用户对象
+    8.设置用户对象的属性信息
+    9.保存用户到数据库
+    10.返回响应信息
+    :return:
+    """
+    # 1.获取参数
+    # json_data = request.data
+    # dict_data = json.loads(json_data)
+
+    # 上面获取方式可以写成一句话dict_data = request.get_json() 和  dict_data = request.json 都行
+    dict_data = request.json
+    mobile = dict_data.get("mobile")
+    sms_code = dict_data.get("sms_code")
+    password = dict_data.get("password")
+
+    # 2.校验参数,为空校验
+    if not all([mobile,sms_code,password]):
+        return jsonify(errno=RET.PARAMERR,errmsg="参数不完整")
+
+    # 3.手机号格式校验
+    if not re.match('1[345678]\\d{9}',mobile):
+        return jsonify(errno=RET.DATAERR,errmsg="手机号格式有误")
+
+    # 4.根据手机号取出redis中的短信验证码
+    try:
+        redis_sms_code = redis_store.get("sms_code:%s"%mobile)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="获取短信验证码失败")
+
+    # 5.判断短信验证码是否过期
+    if not redis_sms_code:
+        return jsonify(errno=RET.NODATA,errmsg="短信验证码已过期")
+
+    # 6.校验短信验证码是否正确
+    if sms_code != redis_sms_code:
+        return jsonify(errno=RET.DATAERR,errmsg="短信验证码填写错误")
+
+    # 7.创建用户对象
+    user = User()
+
+    # 8.设置用户对象的属性信息
+    user.nick_name = mobile
+    user.password_hash = password
+    user.mobile = mobile
+
+    # 9.保存用户到数据库
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        db.session.rollback()
+        return jsonify(errno=RET.DBERR,errmsg="用户创建失败")
+
+    # 10.返回响应信息
+    return jsonify(errno=RET.OK,errmsg="注册成功")
+
 
 #发送短信验证码
 #请求路径:/passport/sms_code
