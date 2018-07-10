@@ -7,6 +7,7 @@ import redis
 from flask_wtf import CSRFProtect
 from config import config_dict
 from flask import Flask
+from flask_wtf.csrf import generate_csrf
 
 # 创建SQLAlchemy对象
 db = SQLAlchemy()
@@ -37,7 +38,7 @@ def create_app(config_name):
     redis_store = redis.StrictRedis(host=config.REDIS_HOST, port=config.REDIS_PORT, decode_responses=True)
 
     # 设置csrf对app进行保护
-    # CSRFProtect(app)
+    CSRFProtect(app)
 
     # 初始化Session
     Session(app)
@@ -49,6 +50,20 @@ def create_app(config_name):
     # 注册蓝图到app对象
     from info.modules.passport import passport_blue
     app.register_blueprint(passport_blue)
+
+    # 设置cookie中的csrf_token,可以使用请求钩子after_request
+    # 开启了csrf校验之后
+    # 1向cookie中设置csrf_token, 2向请求头中设置csrf_token
+    # 服务器内部：取出二者的值csrf_token做校验
+    @app.after_request
+    def after_request(resp):
+        # 调用表单方法，获取csrf_token
+        csrf_token= generate_csrf()
+
+        # 设置cookie中的csrf_token
+        resp.set_cookie("csrf_token",csrf_token)
+
+        return resp
 
     print(app.url_map)
     return app
