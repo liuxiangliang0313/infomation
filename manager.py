@@ -22,6 +22,7 @@ manager = Manager(app)
 # 使用Migrate关联app,db
 Migrate(app, db)
 # 添加操作命令
+
 manager.add_command("db", MigrateCommand)
 
 if __name__ == '__main__':
