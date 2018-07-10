@@ -217,8 +217,9 @@ class Captcha(object):
         self.initialize()
         return self.captcha("")
 
+
 captcha = Captcha.instance()
 
 if __name__ == '__main__':
-    #获取的内容分别是: 验证码名称, 验证码值, 图片(验证码值)
+    # 获取的内容分别是: 验证码名称, 验证码值, 图片(验证码值)
     print(captcha.generate_captcha())

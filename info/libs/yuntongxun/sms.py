@@ -3,15 +3,15 @@
 from info.libs.yuntongxun.CCPRestSDK import REST
 
 # 说明：主账号，登陆云通讯网站后，可在"控制台-应用"中看到开发者主账号ACCOUNT SID
-_accountSid = '8a216da861f5a257016204a0d5ac06f0'
+_accountSid = '8a216da8646e949a01647d9a678d05be'
 
 # 说明：主账号Token，登陆云通讯网站后，可在控制台-应用中看到开发者主账号AUTH TOKEN
-_accountToken = '07885bc11c584f1ba6342a3cc8d7d2a4'
+_accountToken = 'b4f0775a882540d8bfe0b8a1c6c99ec1'
 
 # 请使用管理控制台首页的APPID或自己创建应用的APPID
-_appId = '8aaf0708646d63ec016477a027fb0554'
+_appId = '8a216da8646e949a01647d9a67ea05c5'
 
-#下面三行是固定内容
+# 下面三行是固定内容
 # 说明：请求地址，生产环境配置成app.cloopen.com
 _serverIP = 'sandboxapp.cloopen.com'
 
@@ -20,6 +20,7 @@ _serverPort = "8883"
 
 # 说明：REST API版本号保持不变
 _softVersion = '2013-12-26'
+
 
 # 云通讯官方提供的发送短信代码实例
 # 发送模板短信
@@ -46,7 +47,7 @@ _softVersion = '2013-12-26'
 class CCP(object):
     """发送短信的辅助类"""
 
-    #单利方法
+    # 单利方法
     def __new__(cls, *args, **kwargs):
         # 判断是否存在类属性_instance，_instance是类CCP的唯一对象，即单例
         if not hasattr(CCP, "_instance"):
@@ -71,11 +72,10 @@ class CCP(object):
             return -1
 
 
-
 if __name__ == '__main__':
     ccp = CCP()
     # 参数1: 需要发送的手机号
     # 参数2: [短信验证码值,多长时间有效]
     # 参数3: 默认模板编号,值为1
     # 模板内容如下: 【云通讯】您使用的是云通讯短信模板，您的验证码是{1}，请于{2}分钟内正确输入
-    ccp.send_template_sms('18210094341', [888666, 5], 1)
+    ccp.send_template_sms('17602113738', [888666, 5], 1)
