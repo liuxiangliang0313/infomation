@@ -19,6 +19,7 @@ app = create_app("develop")
 
 # 创建manager对象管理app
 manager = Manager(app)
+
 # 使用Migrate关联app,db
 Migrate(app, db)
 # 添加操作命令
