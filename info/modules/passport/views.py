@@ -169,6 +169,7 @@ def send_message():
     10.返回发送的状态
     :return:
     """
+
     # 1.接收参数
     json_data = request.data
     dict_data = json.loads(json_data)
