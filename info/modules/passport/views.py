@@ -254,4 +254,5 @@ def get_image_code():
     # 返回图片验证码
     response = make_response(image_data)
     response.headers["Content-Type"] = "image/jpg"
+
     return response
