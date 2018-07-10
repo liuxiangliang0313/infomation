@@ -11,6 +11,7 @@ class Config(object):
     # 数据库配置
     SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:mysql@127.0.0.1:3306/information"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True  # 数据库操作完成之后自动提交
 
     # 配置redis
     REDIS_HOST = "127.0.0.1"
