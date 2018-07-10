@@ -1,4 +1,4 @@
-# infomation12
+# infomation
 
 #### 项目介绍
 很好的项目,日活1000w,欢迎下载!!
