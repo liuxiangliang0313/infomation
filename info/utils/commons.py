@@ -1,6 +1,9 @@
 # 公用内容写在此处
 
 # 过滤器，过滤热门新闻颜色
+from curses import wrapper
+from functools import wraps
+
 from flask import current_app
 from flask import g
 from flask import session
@@ -19,6 +22,7 @@ def news_class_filter(index):
 
 # 登陆装饰器，用来封装用户登录的数据
 def user_login_data(view_func):
+    @wraps(view_func)
     def wrapper(*args, **kwargs):
 
         # 获取用户编号
