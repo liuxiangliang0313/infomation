@@ -40,8 +40,12 @@ def news_list():
 
     # 3查询数据库
     try:
-        paginate = News.query.filter(News.category_id == cid).order_by(News.create_time.desc()).paginate(page, per_page,
-                                                                                                         False)
+        # 判断分类编号是否不等于1
+        filters = []
+        if cid != "1":
+            filters.append(News.category_id == cid)
+
+        paginate = News.query.filter(*filters).order_by(News.create_time.desc()).paginate(page, per_page,False)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="查询新闻失败")
