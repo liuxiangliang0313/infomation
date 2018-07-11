@@ -1,7 +1,9 @@
+from flask import g
 from flask import request
 
 from info import redis_store
 from info.models import User, News, Category
+from info.utils.commons import user_login_data
 from info.utils.response_code import RET
 from . import index_blue
 import logging
@@ -65,17 +67,18 @@ def news_list():
 
 
 @index_blue.route('/', methods=["GET", 'POST'])
+@user_login_data
 def show_index_page():
     # 获取用户编号
-    user_id = session.get("user_id")
-
-    # 通过user_id取出用户对象
-    user = None
-    if user_id:
-        try:
-            user = User.query.get(user_id)
-        except Exception as e:
-            current_app.logger.error(e)
+    # user_id = session.get("user_id")
+    #
+    # # 通过user_id取出用户对象
+    # user = None
+    # if user_id:
+    #     try:
+    #         user = User.query.get(user_id)
+    #     except Exception as e:
+    #         current_app.logger.error(e)
 
     # 查询数据库中，前十条新闻，按照点击量
     try:
@@ -104,7 +107,7 @@ def show_index_page():
     # 拼接数据,渲染到页面中
     data = {
         # 如果user有值返回左边内容, 如果没有值返回右边内容
-        "user_info": user.to_dict() if user else "",
+        "user_info": g.user.to_dict() if g.user else "",
         "clicks_news_list": clicks_news_list,
         "categories": category_list
     }
