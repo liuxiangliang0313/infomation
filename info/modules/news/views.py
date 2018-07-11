@@ -47,8 +47,8 @@ def new_details(news_id):
 
     # 将新闻对象列表转成字典列表
     clicks_news_list = []
-    for news in news_items:
-        clicks_news_list.append(news.to_dict())
+    for item in news_items:
+        clicks_news_list.append(item.to_dict())
 
     # 拼接数据，渲染到页面
     data = {
