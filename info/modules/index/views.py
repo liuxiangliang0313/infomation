@@ -1,6 +1,7 @@
 from flask import g
 from flask import request
 
+from info import constants
 from info import redis_store
 from info.models import User, News, Category
 from info.utils.commons import user_login_data
@@ -82,7 +83,7 @@ def show_index_page():
 
     # 查询数据库中，前十条新闻，按照点击量
     try:
-        news_items = News.query.order_by(News.clicks.desc()).limit(10)
+        news_items = News.query.order_by(News.clicks.desc()).limit(constants.CLICK_RANK_MAX_NEWS)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="查询新闻失败")
