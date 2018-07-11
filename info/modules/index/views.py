@@ -1,9 +1,63 @@
+from flask import request
+
 from info import redis_store
 from info.models import User, News, Category
 from info.utils.response_code import RET
 from . import index_blue
 import logging
 from flask import current_app, render_template, session, jsonify
+
+
+# 获取首页新闻列表数据
+# 请求路径: /newslist
+# 请求方式: GET
+# 请求参数: cid,page,per_page
+# 返回值: data数据
+@index_blue.route('/newslist')
+def news_list():
+    """
+    1获取参数
+    2转换参数类型
+    3查询数据库
+    4获取到分页对象中的内容
+    5将对象列表，转成字典列表
+    6返回响应，携带数据
+    :return:
+    """
+    # 1获取参数
+    cid = request.args.get("cid", 1)
+    page = request.args.get("page", 1)
+    per_page = request.args.get("per_page", 1)
+
+    # 2转换参数类型
+    try:
+        page = int(page)
+        per_page = int(per_page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+        per_page = 10
+
+    # 3查询数据库
+    try:
+        paginate = News.query.filter(News.category_id == cid).order_by(News.create_time.desc()).paginate(page, per_page,
+                                                                                                         False)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="查询新闻失败")
+
+    # 4获取到分页对象中的内容
+    currentPage = paginate.page
+    totalPage = paginate.pages
+    items = paginate.items
+
+    # 5将对象列表，转成字典列表
+    news_list = []
+    for news in items:
+        news_list.append(news.to_dict())
+
+    # 6返回响应，携带数据
+    return jsonify(errno=RET.OK, errmsg="查询成功", totalPage=totalPage, currentPage=currentPage, newsList=news_list)
 
 
 @index_blue.route('/', methods=["GET", 'POST'])
@@ -24,7 +78,7 @@ def show_index_page():
         news_items = News.query.order_by(News.clicks.desc()).limit(10)
     except Exception as e:
         current_app.logger.error(e)
-        return jsonify(errno=RET.DBERR,errmsg="查询新闻失败")
+        return jsonify(errno=RET.DBERR, errmsg="查询新闻失败")
 
     # 将新闻对象列表，转换成字典列表
     clicks_news_list = []
@@ -36,10 +90,10 @@ def show_index_page():
         categories = Category.query.all()
     except Exception as e:
         current_app.logger.error(e)
-        return jsonify(errno=RET.DBERR,errmsg="分类信息查询失败")
+        return jsonify(errno=RET.DBERR, errmsg="分类信息查询失败")
 
     # 将分类对象列表转成字典列表
-    category_list =[]
+    category_list = []
     for category in categories:
         category_list.append(category.to_dict())
 
@@ -47,8 +101,8 @@ def show_index_page():
     data = {
         # 如果user有值返回左边内容, 如果没有值返回右边内容
         "user_info": user.to_dict() if user else "",
-        "clicks_news_list":clicks_news_list,
-        "categories":category_list
+        "clicks_news_list": clicks_news_list,
+        "categories": category_list
     }
 
     return render_template('news/index.html', data=data)
