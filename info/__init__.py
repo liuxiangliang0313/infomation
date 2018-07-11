@@ -10,6 +10,8 @@ from flask import Flask
 from flask_wtf.csrf import generate_csrf
 
 # 创建SQLAlchemy对象
+from info.utils.commons import new_class_filter
+
 db = SQLAlchemy()
 
 # 定义redis
@@ -50,6 +52,9 @@ def create_app(config_name):
     # 注册蓝图到app对象
     from info.modules.passport import passport_blue
     app.register_blueprint(passport_blue)
+
+    # 将自定义过滤器装到默认过滤器列表中
+    app.add_template_filter(new_class_filter, "new_class_filter")
 
     # 设置cookie中的csrf_token,可以使用请求钩子after_request
     # 开启了csrf校验之后

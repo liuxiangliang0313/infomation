@@ -1,12 +1,13 @@
 from info import redis_store
-from info.models import User
+from info.models import User, News
+from info.utils.response_code import RET
 from . import index_blue
 import logging
-from flask import current_app, render_template, session
+from flask import current_app, render_template, session, jsonify
 
 
 @index_blue.route('/', methods=["GET", 'POST'])
-def hello_world():
+def show_index_page():
     # 获取用户编号
     user_id = session.get("user_id")
 
@@ -18,10 +19,23 @@ def hello_world():
         except Exception as e:
             current_app.logger.error(e)
 
+    # 查询数据库中，前十条新闻，按照点击量
+    try:
+        news_items = News.query.order_by(News.clicks.desc()).limit(10)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="查询新闻失败")
+
+    # 将新闻对象列表，转换成字典列表
+    clicks_news_list = []
+    for item in news_items:
+        clicks_news_list.append(item.to_dict())
+
     # 拼接数据,渲染到页面中
     data = {
         # 如果user有值返回左边内容, 如果没有值返回右边内容
-        "user_info": user.to_dict() if user else ""
+        "user_info": user.to_dict() if user else "",
+        "clicks_news_list":clicks_news_list
     }
 
     return render_template('news/index.html', data=data)

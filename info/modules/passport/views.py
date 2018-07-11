@@ -71,7 +71,7 @@ def login():
     session["user_id"] = user.id
     session["nick_name"] = user.nick_name
     session["mobile"] = user.mobile
-    
+    # 更新最后一次登陆时间到数据库
     user.last_login = datetime.now()
 
     # 6.返回响应

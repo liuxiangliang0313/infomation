@@ -46,12 +46,14 @@ $(function(){
 	// 		$(this).siblings('.input_tip').animate({'top':22,'font-size':14},'fast');
 	// 	}
 	// })
-    $('.form_group').on('click', function () {
-        $(this).children('input').focus()
+
+    //解决动画位移问题
+    $('.form_group').on('click',function(){
+    $(this).children('input').focus()
     })
 
-    $('.form_group input').on('focusin', function () {
-        $(this).siblings('.input_tip').animate({'top': -5, 'font-size': 12}, 'fast')
+    $('.form_group input').on('focusin',function(){
+        $(this).siblings('.input_tip').animate({'top':-5,'font-size':12},'fast')
         $(this).parent().addClass('hotline');
     })
 
@@ -133,7 +135,8 @@ $(function(){
             success: function (resp) {
                 //判断是否登陆成功
                 if(resp.errno == "0"){
-                    location.href = '/'
+                    // location.href = '/'
+                    location.reload() //加载当前页面
                 }else{
                     alert(resp.errmsg)
                 }
@@ -277,7 +280,7 @@ function sendSMSCode() {
             //判断是否发送短信成功
             if(resp.errno == "0"){
                 //倒计时秒数
-                var num = 60;
+                var num = 10;
 
                 var t = setInterval(function () {
                     //判断倒计时是否结束
