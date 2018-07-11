@@ -44,7 +44,7 @@
             <a href="#" class="logo fl"><img src="../../static/news/images/logo.png" alt="logo"></a>
             <ul class="menu fl">
 
-                 遍历获取分类字典内容
+{#                 遍历获取分类字典内容#}
                 {% for category in data.categories %}
                     <li class="{% if loop.index == 1 %} active {% endif %}" data-cid="{{ category.id }}"><a href="javascript:;">{{ category.name }}</a></li>
                 {% endfor %}
@@ -59,7 +59,7 @@
                 <li data-cid="6"><a href="javascript:;">公司</a></li>
             </ul>
 
-             判断用户是否有登陆
+{#             判断用户是否有登陆#}
             {% if data.user_info %}
                 <!-- 用户登录后显示下面，隐藏上面 -->
                 <div class="user_login fr">
@@ -104,7 +104,7 @@
             </li>
             <li>
                 <a href="#" class="news_pic fl"><img src="../../static/news/images/news_pic.jpg"></a>
-                <a href="#" clas s="news_title fl">日本史上最大IPO之一要来了：软银计划将手机业务分拆上市</a>
+                <a href="#" class="news_title fl">日本史上最大IPO之一要来了：软银计划将手机业务分拆上市</a>
                 <a href="#" class="news_detail fl">据日经新闻网，软银计划让旗下核心业务移动手机部门SoftBank Corp.分拆上市，或募资2万亿日元(约180亿美元)。随着软银逐步向投资公司转型，此举旨在给手机业务部门更多自主权。</a>
                 <div class="author_info fl">
                     <div class="source fl">
@@ -142,7 +142,7 @@
                 <h3>点击排行</h3>
             </div>
             <ul class="rank_list">
-                 遍历热门新闻
+{#                 遍历热门新闻#}
                 {% for news in data.clicks_news_list %}
                    <li><span class="{{ loop.index | news_class_filter }}">{{ loop.index }}</span><a href="/news/{{ news.id }}">{{ news.title }}</a></li>
                 {% endfor %}
