@@ -1,5 +1,5 @@
 from info import redis_store
-from info.models import User, News
+from info.models import User, News, Category
 from info.utils.response_code import RET
 from . import index_blue
 import logging
@@ -31,11 +31,24 @@ def show_index_page():
     for item in news_items:
         clicks_news_list.append(item.to_dict())
 
+    # 查询分类列表
+    try:
+        categories = Category.query.all()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR,errmsg="分类信息查询失败")
+
+    # 将分类对象列表转成字典列表
+    category_list =[]
+    for category in categories:
+        category_list.append(category.to_dict())
+
     # 拼接数据,渲染到页面中
     data = {
         # 如果user有值返回左边内容, 如果没有值返回右边内容
         "user_info": user.to_dict() if user else "",
-        "clicks_news_list":clicks_news_list
+        "clicks_news_list":clicks_news_list,
+        "categories":category_list
     }
 
     return render_template('news/index.html', data=data)
