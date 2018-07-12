@@ -177,7 +177,7 @@ def new_details(news_id):
 
     # 获取该新闻的所有评论内容
     try:
-        comments = Comment.query.filter(Comment.news_id == news.id).all()
+        comments = Comment.query.filter(Comment.news_id == news.id).order_by(Comment.create_time.desc()).all()
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="获取评论失败")
