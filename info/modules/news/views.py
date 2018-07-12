@@ -5,11 +5,73 @@ from flask import render_template
 from flask import request
 from flask import session
 
-from info import constants
-from info.models import User, News
+from info import constants, db
+from info.models import User, News, Comment
 from info.utils.commons import user_login_data
 from info.utils.response_code import RET
 from . import news_blu
+
+
+# 评论/回复评论
+# 请求路径: /news/news_comment
+# 请求方式: POST
+# 请求参数:news_id,comment,parent_id
+# 返回值: errno,errmsg,评论字典
+@news_blu.route('/news_comment')
+@user_login_data
+def news_comment():
+    """
+    1判断用户是否登陆
+    2获取参数
+    3校验参数，为空校验
+    4根据编号取出新闻对象，并判断是否存在
+    5创建评论对象，设置评论对象属性
+    6添加评论对象到数据库
+    7返回响应
+    :return:
+    """
+    # 1判断用户是否登陆
+    if not g.user:
+        return jsonify(errno=RET.NODATA, errmsg="该用户未登录")
+
+    # 2获取参数
+    news_id = request.json.get("news_id")
+    content = request.json.get("comment")
+    parent_id = request.json.get("parent_id")
+
+    # 3校验参数，为空校验
+    if not all([news_id, content]):
+        return jsonify(errno=RET.NODATA, errmsg="参数不全")
+
+    # 4根据编号取出新闻对象，并判断是否存在
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="新闻查询失败")
+
+    if not news:
+        return jsonify(errno=RET.NODATA, errmsg="该新闻不存在")
+
+    # 5创建评论对象，设置评论对象属性
+    comment = Comment()
+    comment.user_id = g.user.id
+    comment.news_id = news.id
+    comment.content = content
+
+    if parent_id:
+        comment.parent_id = parent_id
+
+    # 6添加评论对象到数据库
+    try:
+        db.session.add(comment)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="添加评论失败")
+
+    # 7返回响应
+    return jsonify(errno=RET.OK, errmsg="评论成功")
 
 
 # 收藏/取消收藏
@@ -17,7 +79,7 @@ from . import news_blu
 # 请求方式: POST
 # 请求参数:news_id,action, g.user
 # 返回值: errno,errmsg
-@news_blu.route('/news_collect',methods=["POST"])
+@news_blu.route('/news_collect', methods=["POST"])
 @user_login_data
 def news_collect():
     """
