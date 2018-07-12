@@ -50,11 +50,18 @@ def new_details(news_id):
     for item in news_items:
         clicks_news_list.append(item.to_dict())
 
+    # 判断用户是否有收藏该新闻
+    is_collected = False
+    # 如果用户登录，并且该新闻在用户收藏列表中，说明已收藏
+    if g.user and news in g.user.collection_news:
+        is_collected = True
+
     # 拼接数据，渲染到页面
     data = {
         "user_info": g.user.to_dict() if g.user else "",
         "news": news.to_dict(),
-        "clicks_news_list":clicks_news_list
+        "clicks_news_list":clicks_news_list,
+        "is_collected":is_collected
     }
 
     return render_template("news/detail.html", data=data)
