@@ -17,8 +17,9 @@ from . import news_blu
 # 请求方式: POST
 # 请求参数:news_id,action, g.user
 # 返回值: errno,errmsg
-@news_blu.route('/new_cllect')
-def new_cllect():
+@news_blu.route('/news_collect',methods=["POST"])
+@user_login_data
+def news_collect():
     """
     1判断用户是否登陆
     2取出参数
