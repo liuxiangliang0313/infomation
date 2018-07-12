@@ -17,14 +17,14 @@ from . import news_blu
 # 请求方式: POST
 # 请求参数:news_id,comment,parent_id
 # 返回值: errno,errmsg,评论字典
-@news_blu.route('/news_comment',methods=['POST'])
+@news_blu.route('/news_comment', methods=['POST'])
 @user_login_data
 def news_comment():
     """
     1判断用户是否登陆
     2获取参数
     3校验参数，为空校验
-    4根据编号取出新闻对象，并判断是否存在
+    4根据编号取出新闻对象，并判断是否存在/
     5创建评论对象，设置评论对象属性
     6添加评论对象到数据库
     7返回响应
@@ -72,7 +72,7 @@ def news_comment():
         return jsonify(errno=RET.DBERR, errmsg="添加评论失败")
 
     # 7返回响应
-    return jsonify(errno=RET.OK, errmsg="评论成功",data=comment.to_dict())
+    return jsonify(errno=RET.OK, errmsg="评论成功", data=comment.to_dict())
 
 
 # 收藏/取消收藏
@@ -175,12 +175,25 @@ def new_details(news_id):
     if g.user and news in g.user.collection_news:
         is_collected = True
 
+    # 获取该新闻的所有评论内容
+    try:
+        comments = Comment.query.filter(Comment.news_id == news.id).all()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="获取评论失败")
+
+    # 将评论对象列表转成字典列表
+    comment_list=[]
+    for comment in comments:
+        comment_list.append(comment.to_dict())
+
     # 拼接数据，渲染到页面
     data = {
         "user_info": g.user.to_dict() if g.user else "",
         "news": news.to_dict(),
         "clicks_news_list": clicks_news_list,
-        "is_collected": is_collected
+        "is_collected": is_collected,
+        "comments":comment_list
     }
 
     return render_template("news/detail.html", data=data)
