@@ -11,13 +11,14 @@ from info.utils.commons import user_login_data
 from info.utils.response_code import RET
 from . import news_blu
 
+
 # 点赞/取消点赞
 # 请求路径: /news/comment_like
 # 请求方式: POST
 # 请求参数:news_id,comment_id,action,g.user
 # 返回值: errno,errmsg
 # 参数解释:
-@news_blu.route('/user_comment_like',methods=['POST'])
+@news_blu.route('/user_comment_like', methods=['POST'])
 def user_comment_like():
     """
     1判断用户是否登陆
@@ -38,10 +39,10 @@ def user_comment_like():
     action = request.json.get("action")
 
     # 3校验参数，为空校验，类型校验
-    if not all([comment_id,action]):
+    if not all([comment_id, action]):
         return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
 
-    if not action in ["add","remove"]:
+    if not action in ["add", "remove"]:
         return jsonify(errno=RET.DATAERR, errmsg="操作类型有误")
 
     # 4根据评论编号查询评论对象
@@ -264,13 +265,14 @@ def new_details(news_id):
     # 获取到当前新闻所有的评论的所有赞对象列表
     # 条件1：找到当前新闻的所有赞
     # 条件2：过滤出了某个人
-    comment_like_list = CommentLike.query.filter(CommentLike.comment_id.in_(comment_ids),CommentLike.user_id==g.user.id).all()
+    comment_like_list = CommentLike.query.filter(CommentLike.comment_id.in_(comment_ids),
+                                                 CommentLike.user_id == g.user.id).all()
 
     # 获取到用户对当前新闻，点赞过的评论编号
     my_comment_like_ids = [comment_like.comment_id for comment_like in comment_like_list]
 
     # 将评论对象列表转成字典列表
-    comment_list=[]
+    comment_list = []
     for comment in comments:
         comm_dict = comment.to_dict()
         # 假设对每条评论都没有点过赞
@@ -287,7 +289,7 @@ def new_details(news_id):
         "news": news.to_dict(),
         "clicks_news_list": clicks_news_list,
         "is_collected": is_collected,
-        "comments":comment_list
+        "comments": comment_list
     }
 
     return render_template("news/detail.html", data=data)
