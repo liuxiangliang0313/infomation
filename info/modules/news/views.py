@@ -2,6 +2,7 @@ from flask import abort
 from flask import current_app, jsonify
 from flask import g
 from flask import render_template
+from flask import request
 from flask import session
 
 from info import constants
@@ -9,6 +10,60 @@ from info.models import User, News
 from info.utils.commons import user_login_data
 from info.utils.response_code import RET
 from . import news_blu
+
+
+# 收藏/取消收藏
+# 请求路径: /news/news_collect
+# 请求方式: POST
+# 请求参数:news_id,action, g.user
+# 返回值: errno,errmsg
+@news_blu.route('/new_cllect')
+def new_cllect():
+    """
+    1判断用户是否登陆
+    2取出参数
+    3校验参数，为空校验，参数类型校验
+    4根据编号查询新闻是否存在
+    5根据操作类型，收藏，取消收藏
+    6返回响应
+    :return:
+    """
+    # 1判断用户是否登陆
+    if not g.user:
+        return jsonify(errno=RET.NODATA, errmsg="该用户未登录")
+
+    # 2取出参数
+    news_id = request.json.get("news_id")
+    action = request.json.get("action")
+
+    # 3校验参数，为空校验，参数类型校验
+    if not all([news_id, action]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+    if not action in ["collect", "cancel_collect"]:
+        return jsonify(errno=RET.DATAERR, errmsg="类型有误")
+
+    # 4根据编号查询新闻是否存在
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="新闻查询异常")
+
+    if not news:
+        return jsonify(errno=RET.NODATA, errmsg="该新闻不存在")
+
+    # 5根据操作类型，收藏，取消收藏
+    try:
+        if action == "collect":
+            g.user.collection_news.append(news)
+        else:
+            g.user.collection_news.remove(news)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="操作失败")
+
+    # 6返回响应
+    return jsonify(errno=RET.OK, errmsg="操作成功")
 
 
 # 新闻详情展示
@@ -60,8 +115,8 @@ def new_details(news_id):
     data = {
         "user_info": g.user.to_dict() if g.user else "",
         "news": news.to_dict(),
-        "clicks_news_list":clicks_news_list,
-        "is_collected":is_collected
+        "clicks_news_list": clicks_news_list,
+        "is_collected": is_collected
     }
 
     return render_template("news/detail.html", data=data)
