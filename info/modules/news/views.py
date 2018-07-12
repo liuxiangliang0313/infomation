@@ -6,7 +6,7 @@ from flask import request
 from flask import session
 
 from info import constants, db
-from info.models import User, News, Comment
+from info.models import User, News, Comment, CommentLike
 from info.utils.commons import user_login_data
 from info.utils.response_code import RET
 from . import news_blu
@@ -182,10 +182,28 @@ def new_details(news_id):
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="获取评论失败")
 
+    # 获取当前新闻到所有评论列表编号
+    comment_ids = [comm.id for comm in comments]
+
+    # 获取到当前新闻所有的评论的所有赞对象列表
+    # 条件1：找到当前新闻的所有赞
+    # 条件2：过滤出了某个人
+    comment_like_list = CommentLike.query.filter(CommentLike.comment_id.in_(comment_ids),CommentLike.user_id==g.user.id).all()
+
+    # 获取到用户对当前新闻，点赞过的评论编号
+    my_comment_like_ids = [comment_like.comment_id for comment_like in comment_like_list]
+
     # 将评论对象列表转成字典列表
     comment_list=[]
     for comment in comments:
-        comment_list.append(comment.to_dict())
+        comm_dict = comment.to_dict()
+        # 假设对每条评论都没有点过赞
+        comm_dict["is_like"] = False
+        # 判断用户是否有点赞
+        if g.user and comment.id in my_comment_like_ids:
+            comm_dict["is_like"] = True
+
+        comment_list.append(comm_dict)
 
     # 拼接数据，渲染到页面
     data = {
