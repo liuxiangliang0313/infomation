@@ -17,7 +17,7 @@ from . import news_blu
 # 请求方式: POST
 # 请求参数:news_id,comment,parent_id
 # 返回值: errno,errmsg,评论字典
-@news_blu.route('/news_comment')
+@news_blu.route('/news_comment',methods=['POST'])
 @user_login_data
 def news_comment():
     """
@@ -71,7 +71,7 @@ def news_comment():
         return jsonify(errno=RET.DBERR, errmsg="添加评论失败")
 
     # 7返回响应
-    return jsonify(errno=RET.OK, errmsg="评论成功")
+    return jsonify(errno=RET.OK, errmsg="评论成功",data=comment.to_dict())
 
 
 # 收藏/取消收藏
