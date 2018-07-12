@@ -30,6 +30,7 @@ def news_comment():
     7返回响应
     :return:
     """
+
     # 1判断用户是否登陆
     if not g.user:
         return jsonify(errno=RET.NODATA, errmsg="该用户未登录")
