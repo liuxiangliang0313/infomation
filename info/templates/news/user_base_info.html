@@ -21,11 +21,11 @@
         <div class="form-group">
             <label>性别：</label>
             {% if user_info.gender == "MAN" %}
-                <input class="gender" type="radio" name="gender" checked="checked"> <b>男</b>&nbsp;&nbsp;&nbsp;&nbsp;
-                <input class="gender" type="radio" name="gender">  <b>女</b>
+                <input class="gender" type="radio" name="gender" checked="checked" value="MAN"> <b>男</b>&nbsp;&nbsp;&nbsp;&nbsp;
+                <input class="gender" type="radio" name="gender" value="WOMAN">  <b>女</b>
             {% else %}
-                <input class="gender" type="radio" name="gender" checked="checked"> <b>男</b>&nbsp;&nbsp;&nbsp;&nbsp;
-                <input class="gender" type="radio" name="gender">  <b>女</b>
+                <input class="gender" type="radio" name="gender" checked="checked" value="MAN"> <b>男</b>&nbsp;&nbsp;&nbsp;&nbsp;
+                <input class="gender" type="radio" name="gender" value="WOMAN">  <b>女</b>
             {% endif %}
 
         </div>
