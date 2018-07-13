@@ -18,7 +18,7 @@ class xmltojson:
     def get_root(self, path):
         '''parse the XML file,and get the tree of the XML file
         finally,return the root element of the tree.
-        if the XML file dose not exist,then print the information'''
+        if the XML file dose not exist,then print the infomation'''
         # if os.path.exists(path):
         # if SHOW_LOG:
         # print('start to parse the file : [{}]'.format(path))

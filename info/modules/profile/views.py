@@ -10,10 +10,10 @@ from . import profile_blu
 # 请求方式:GET,POST
 # 请求参数:POST请求有参数,nick_name,signature,gender
 # 返回值:errno,errmsg
-@profile_blu.route('/base_info', methods=['GET', 'POST'])
+@profile_blu.route('/base_info')
 @user_login_data
 def base_info():
-    return render_template('news/user_base_info.html')
+    return render_template('news/user_base_info.html',user_info=g.user.to_dict() if g.user else "")
 
 
 # 展示个人中心页面
@@ -26,6 +26,6 @@ def user_info():
 
     # 拼接数据返回页面
     data = {
-        "user_info": g.user.to_dict() if g.user else ""
+        "user_info": g.user.to_dict()
     }
     return render_template("news/user.html", data=data)
