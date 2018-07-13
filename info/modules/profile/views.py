@@ -8,4 +8,4 @@ from . import profile_blu
 @profile_blu.route('/info', methods=['GET', 'POST'])
 @user_login_data
 def user_info():
-    return render_template("news/user.html")
+    return render_template("news/user.html",data={})
