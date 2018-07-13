@@ -61,7 +61,8 @@ def user_comment_like():
     try:
         if action == "add":
             # 查询用户是否有对该评论点过赞
-            comment_like = CommentLike.query.filter(CommentLike.comment_id, CommentLike.user_id == g.user.id).first()
+            comment_like = CommentLike.query.filter(CommentLike.comment_id == comment_id,
+                                                    CommentLike.user_id == g.user.id).first()
             if not comment_like:
                 # 创建点赞对象，设置属性值
                 comment_like = CommentLike()
@@ -74,7 +75,8 @@ def user_comment_like():
                 db.session.commit()
         else:
             # 查询用户是否有对该评论点过赞
-            comment_like = CommentLike.query.filter(CommentLike.comment_id, CommentLike.user_id == g.user.id).first()
+            comment_like = CommentLike.query.filter(CommentLike.comment_id == comment_id,
+                                                    CommentLike.user_id == g.user.id).first()
             if comment_like:
                 # 从数据库删除
                 db.session.delete(comment_like)
@@ -260,8 +262,9 @@ def new_details(news_id):
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="获取评论失败")
 
+    # 记录点赞过的评论编号
+    my_comment_like_ids = []
     if g.user:
-
         # 获取当前新闻到所有评论列表编号
         comment_ids = [comm.id for comm in comments]
 
