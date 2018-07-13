@@ -18,7 +18,8 @@ from . import news_blu
 # 请求参数:news_id,comment_id,action,g.user
 # 返回值: errno,errmsg
 # 参数解释:
-@news_blu.route('/user_comment_like', methods=['POST'])
+@news_blu.route('/comment_like', methods=['POST'])
+@user_login_data
 def user_comment_like():
     """
     1判断用户是否登陆
@@ -69,7 +70,7 @@ def user_comment_like():
                 # 将当前点赞数量+1
                 comment.like_count += 1
                 # 添加到数据库
-                db.session.add(comment_id)
+                db.session.add(comment_like)
                 db.session.commit()
         else:
             # 查询用户是否有对该评论点过赞
@@ -259,17 +260,19 @@ def new_details(news_id):
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="获取评论失败")
 
-    # 获取当前新闻到所有评论列表编号
-    comment_ids = [comm.id for comm in comments]
+    if g.user:
 
-    # 获取到当前新闻所有的评论的所有赞对象列表
-    # 条件1：找到当前新闻的所有赞
-    # 条件2：过滤出了某个人
-    comment_like_list = CommentLike.query.filter(CommentLike.comment_id.in_(comment_ids),
-                                                 CommentLike.user_id == g.user.id).all()
+        # 获取当前新闻到所有评论列表编号
+        comment_ids = [comm.id for comm in comments]
 
-    # 获取到用户对当前新闻，点赞过的评论编号
-    my_comment_like_ids = [comment_like.comment_id for comment_like in comment_like_list]
+        # 获取到当前新闻所有的评论的所有赞对象列表
+        # 条件1：找到当前新闻的所有赞
+        # 条件2：过滤出了某个人
+        comment_like_list = CommentLike.query.filter(CommentLike.comment_id.in_(comment_ids),
+                                                     CommentLike.user_id == g.user.id).all()
+
+        # 获取到用户对当前新闻，点赞过的评论编号
+        my_comment_like_ids = [comment_like.comment_id for comment_like in comment_like_list]
 
     # 将评论对象列表转成字典列表
     comment_list = []

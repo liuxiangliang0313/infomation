@@ -1,7 +1,7 @@
 # 公用内容写在此处
 
 # 过滤器，过滤热门新闻颜色
-from curses import wrapper
+
 from functools import wraps
 
 from flask import current_app
