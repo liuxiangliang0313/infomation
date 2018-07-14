@@ -3,10 +3,49 @@ from flask import g, jsonify
 from flask import render_template
 from flask import request
 
+from info import constants
 from info.utils.commons import user_login_data
 from info.utils.image_storage import image_storage
 from info.utils.response_code import RET
 from . import profile_blu
+
+# 获取/设置用户密码
+# 请求路径: /user/pass_info
+# 请求方式:GET,POST
+# 请求参数:GET无, POST有参数,old_password, new_password
+# 返回值:GET请求: user_pass_info.html页面,data字典数据, POST请求: errno, errmsg
+@profile_blu.route('/pass_info', methods=['GET', 'POST'])
+@user_login_data
+def pass_info():
+    """
+    1第一次进入GET请求，直接返回页面
+    2获取参数
+    3校验参数，旧密码正确性
+    4修改新密码
+    5返回响应
+    :return:
+    """
+    # 1第一次进入GET请求，直接返回页面
+    if request.method == "GET":
+        return render_template("news/user_pass_info.html")
+
+    # 2获取参数
+    old_password = request.json.get("old_password")
+    new_password = request.json.get("new_password")
+
+    # 3校验参数，旧密码正确性
+    if not all([old_password,new_password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    if not g.user.check_passowrd(old_password):
+        return jsonify(errno=RET.DATAERR, errmsg="旧密码不正确")
+
+    # 4修改新密码
+    g.user.password = new_password
+
+    # 5返回响应
+    return jsonify(errno=RET.OK, errmsg="密码修改成功")
+
 
 # 用户头像获取/设置
 # 请求路径: /user/pic_info
@@ -28,7 +67,7 @@ def pic_info():
     """
     # 1第一次进入GET请求，直接渲染页面
     if request.method == "GET":
-        return render_template("news/user_pic_info.html",user_info=g.user.to_dict())
+        return render_template("news/user_pic_info.html", user_info=g.user.to_dict())
     # 2获取参数
     file = request.files.get("avatar")
 
@@ -55,7 +94,10 @@ def pic_info():
     g.user.avatar_url = image_name
 
     # 7返回响应
-    return jsonify(errno=RET.OK, errmsg="上传成功")
+    data ={
+        "avatar_url":constants.QINIU_DOMIN_PREFIX+image_name
+    }
+    return jsonify(errno=RET.OK, errmsg="上传成功", data=data)
 
 
 # 基本资料展示
