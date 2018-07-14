@@ -1,8 +1,10 @@
+from flask import current_app
 from flask import g, jsonify
 from flask import render_template
 from flask import request
 
 from info.utils.commons import user_login_data
+from info.utils.image_storage import image_storage
 from info.utils.response_code import RET
 from . import profile_blu
 
@@ -18,15 +20,42 @@ def pic_info():
     1第一次进入GET请求，直接渲染页面
     2获取参数
     3校验参数，为空校验
+    4上传图片
+    5判断图片是否上传成功
+    6设置用户图像
+    7返回响应
     :return:
     """
     # 1第一次进入GET请求，直接渲染页面
     if request.method == "GET":
         return render_template("news/user_pic_info.html",user_info=g.user.to_dict())
     # 2获取参数
+    file = request.files.get("avatar")
+
     # 3校验参数，为空校验
+    if not file:
+        return jsonify(errno=RET.NODATA, errmsg="图片不能为空")
 
+    # 4上传图片
+    try:
+        # 读取图片为二进制流
+        image_data = file.read()
+        # 调用方法上传
+        image_name = image_storage(image_data)
 
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.THIRDERR, errmsg="图片上传失败")
+
+    # 5判断图片是否上传成功
+    if not image_name:
+        return jsonify(errno=RET.DATAERR, errmsg="上传失败")
+
+    # 6设置用户图像
+    g.user.avatar_url = image_name
+
+    # 7返回响应
+    return jsonify(errno=RET.OK, errmsg="上传成功")
 
 
 # 基本资料展示
