@@ -4,10 +4,65 @@ from flask import render_template
 from flask import request
 
 from info import constants
+from info.constants import USER_COLLECTION_MAX_NEWS
 from info.utils.commons import user_login_data
 from info.utils.image_storage import image_storage
 from info.utils.response_code import RET
 from . import profile_blu
+
+
+# 获取新闻收藏列表
+# 请求路径: /user/ collection
+# 请求方式:GET
+# 请求参数:p(页数)
+# 返回值: user_collection.html页面
+@profile_blu.route('/collection')
+@user_login_data
+def collection():
+    """
+    1获取参数
+    2转换参数类型
+    3分页查询，得到分页对象
+    4获取分页对象属性，总页数，当前页，对象列表
+    5将对象列表转成字典列表
+    6拼接数据，返回页面
+    :return:
+    """
+    # 1获取参数
+    page = request.args.get("p",1)
+
+    # 2转换参数类型
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    # 3分页查询，得到分页对象
+    try:
+        paginate = g.user.collection_news.paginate(page, constants.USER_COLLECTION_MAX_NEWS,False)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="查询新闻失败")
+
+    # 4获取分页对象属性，总页数，当前页，对象列表
+    totalPage = paginate.pages
+    currentPage = paginate.page
+    items = paginate.items
+
+    # 5将对象列表转成字典列表
+    news_list = []
+    for news in items:
+        news_list.append(news.to_dict())
+
+    # 6拼接数据，返回页面
+    data = {
+        "totalPage":totalPage,
+        "currentPage":currentPage,
+        "news_list":news_list
+    }
+    return render_template("news/user_collection.html",data=data)
+
 
 # 获取/设置用户密码
 # 请求路径: /user/pass_info
@@ -34,7 +89,7 @@ def pass_info():
     new_password = request.json.get("new_password")
 
     # 3校验参数，旧密码正确性
-    if not all([old_password,new_password]):
+    if not all([old_password, new_password]):
         return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
 
     if not g.user.check_passowrd(old_password):
@@ -94,8 +149,8 @@ def pic_info():
     g.user.avatar_url = image_name
 
     # 7返回响应
-    data ={
-        "avatar_url":constants.QINIU_DOMIN_PREFIX+image_name
+    data = {
+        "avatar_url": constants.QINIU_DOMIN_PREFIX + image_name
     }
     return jsonify(errno=RET.OK, errmsg="上传成功", data=data)
 
