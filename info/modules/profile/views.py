@@ -5,10 +5,56 @@ from flask import request
 
 from info import constants
 from info.constants import USER_COLLECTION_MAX_NEWS
+from info.models import Category
 from info.utils.commons import user_login_data
 from info.utils.image_storage import image_storage
 from info.utils.response_code import RET
 from . import profile_blu
+
+# 获取/设置,新闻发布
+# 请求路径: /user/news_release
+# 请求方式:GET,POST
+# 请求参数:GET无, POST ,title, category_id,digest,index_image,content
+# 返回值:GET请求,user_news_release.html, data分类列表字段数据, POST,errno,errmsg
+@profile_blu.route('/news_release', methods=['GET', 'POST'])
+@user_login_data
+def news_release():
+    """
+    1第一次进入，GET请求，直接渲染页面
+    2获取参数
+    3校验参数
+    4图片上传
+    5创建新闻对象，设置属性
+    6更新到数据库
+    7返回响应
+    :return:
+    """
+    # 1第一次进入，GET请求，直接渲染页面
+    if request.method == "GET":
+        # 查询分类信息
+        try:
+            categories = Category.query.all()
+            categories.pop(0)
+        except Exception as e:
+            current_app.logger.error(e)
+            return jsonify(errno=RET.DBERR, errmsg="分类获取失败")
+
+        # 将分类对象列表转换成字典，渲染页面
+        category_list = []
+        for category in categories:
+            category_list.append(category.to_dict())
+
+        return render_template("news/user_news_release.html", categories=category_list)
+
+    # 2获取参数
+
+
+    # 3校验参数
+    # 4图片上传
+    # 5创建新闻对象，设置属性
+    # 6更新到数据库
+    # 7返回响应
+
 
 
 # 获取新闻收藏列表
