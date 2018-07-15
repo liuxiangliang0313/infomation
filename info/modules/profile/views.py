@@ -3,9 +3,9 @@ from flask import g, jsonify
 from flask import render_template
 from flask import request
 
-from info import constants
+from info import constants, db
 from info.constants import USER_COLLECTION_MAX_NEWS
-from info.models import Category
+from info.models import Category, News
 from info.utils.commons import user_login_data
 from info.utils.image_storage import image_storage
 from info.utils.response_code import RET
@@ -47,14 +47,49 @@ def news_release():
         return render_template("news/user_news_release.html", categories=category_list)
 
     # 2获取参数
-
+    title = request.form.get("title")
+    category_id = request.form.get("category_id")
+    digest = request.form.get("digest")
+    file_name = request.files.get("index_image")
+    content = request.form.get("content")
 
     # 3校验参数
-    # 4图片上传
-    # 5创建新闻对象，设置属性
-    # 6更新到数据库
-    # 7返回响应
+    if not all([title,category_id,digest,file_name,content]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
 
+    # 4图片上传
+    try:
+        # 读取图片为二进制
+        image_data = file_name.read()
+        #上传
+        image_name = image_storage(image_data)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.THIRDERR, errmsg="七牛云异常")
+    # 判断是否上传成功
+    if not image_name:
+        return jsonify(errno=RET.THIRDERR, errmsg="图片上传失败")
+
+    # 5创建新闻对象，设置属性
+    news = News()
+    news.title = title
+    news.source = "个人发布"
+    news.digest = digest
+    news.content =content
+    news.index_image_url = constants.QINIU_DOMIN_PREFIX+image_name
+    news.user_id =g.user.id
+    news.status = 1 # 1代表审核中
+
+    # 6更新到数据库
+    try:
+        db.session.add(news)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="发布新闻失败")
+
+    # 7返回响应
+    return jsonify(errno=RET.OK, errmsg="发布成功")
 
 
 # 获取新闻收藏列表
