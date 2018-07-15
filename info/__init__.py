@@ -1,6 +1,8 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
+from flask import g
+from flask import render_template
 from flask_session import Session  # 只是用来指定session存储数据的位置
 from flask_sqlalchemy import SQLAlchemy
 import redis
@@ -10,7 +12,7 @@ from flask import Flask
 from flask_wtf.csrf import generate_csrf
 
 # 创建SQLAlchemy对象
-from info.utils.commons import news_class_filter
+from info.utils.commons import news_class_filter, user_login_data
 
 db = SQLAlchemy()
 
@@ -77,6 +79,14 @@ def create_app(config_name):
         resp.set_cookie("csrf_token",csrf_token)
 
         return resp
+    # 捕捉404异常
+    @app.errorhandler(404)
+    @user_login_data
+    def page_not_found(e):
+        data = {
+            "user_info":g.user.to_dict() if g.user else ""
+        }
+        return render_template('news/404.html',data=data)
 
     print(app.url_map)
     return app
