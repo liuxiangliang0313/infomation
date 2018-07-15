@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# flake8: noqa
+
 from qiniu import Auth, put_file, etag
 import qiniu.config
 

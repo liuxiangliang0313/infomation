@@ -14,6 +14,7 @@
         <h3>头像设置</h3>
         <div class="form-group">
             <label class="label01">当前图像：</label>
+            {# 判断用户是否有头像 #}
             {% if user_info.avatar_url %}
                 <img src="{{ user_info.avatar_url }}" alt="用户图片" class="now_user_pic">
             {% else %}

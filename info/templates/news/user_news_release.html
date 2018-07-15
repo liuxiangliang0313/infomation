@@ -18,9 +18,11 @@
         <div class="form-group">
             <label>新闻分类：</label>
             <select class="sel_opt" name="category_id">
+
                 {% for category in categories %}
                     <option value="{{ category.id }}">{{ category.name }}</option>
                 {% endfor %}
+
 
 {#                <option value="">分类一</option>#}
 {#                <option value="">分类二</option>#}
