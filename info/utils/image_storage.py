@@ -22,7 +22,11 @@ token = q.upload_token(bucket_name, key, 3600)
 def image_storage(image_data):
     # localfile = './bbb.jpg'
     ret, info = put_data(token, key, image_data)
-    print(info)
+    if info.status_code == 200:
+        return ret.get("key")
+    else:
+        return ""
+    # print(info)
 if __name__ == '__main__':
     with open('11.jpg','rb') as file:
         image_storage(file.read())

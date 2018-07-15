@@ -11,6 +11,7 @@ from info.utils.image_storage import image_storage
 from info.utils.response_code import RET
 from . import profile_blu
 
+
 # 获取/设置,新闻发布
 # 请求路径: /user/news_release
 # 请求方式:GET,POST
@@ -54,31 +55,31 @@ def news_release():
     content = request.form.get("content")
 
     # 3校验参数
-    if not all([title,category_id,digest,file_name,content]):
+    if not all([title, category_id, digest, file_name, content]):
         return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
 
     # 4图片上传
     try:
         # 读取图片为二进制
         image_data = file_name.read()
-        #上传
+        # 上传
         image_name = image_storage(image_data)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.THIRDERR, errmsg="七牛云异常")
     # 判断是否上传成功
     if not image_name:
-        return jsonify(errno=RET.THIRDERR, errmsg="图片上传失败")
+        return jsonify(errno=RET.NODATA, errmsg="图片上传失败")
 
     # 5创建新闻对象，设置属性
     news = News()
     news.title = title
     news.source = "个人发布"
     news.digest = digest
-    news.content =content
-    news.index_image_url = constants.QINIU_DOMIN_PREFIX+image_name
-    news.user_id =g.user.id
-    news.status = 1 # 1代表审核中
+    news.content = content
+    news.index_image_url = constants.QINIU_DOMIN_PREFIX + image_name
+    news.user_id = g.user.id
+    news.status = 1  # 1代表审核中
 
     # 6更新到数据库
     try:
@@ -110,7 +111,7 @@ def collection():
     :return:
     """
     # 1获取参数
-    page = request.args.get("p",1)
+    page = request.args.get("p", 1)
 
     # 2转换参数类型
     try:
@@ -121,7 +122,7 @@ def collection():
 
     # 3分页查询，得到分页对象
     try:
-        paginate = g.user.collection_news.paginate(page, constants.USER_COLLECTION_MAX_NEWS,False)
+        paginate = g.user.collection_news.paginate(page, constants.USER_COLLECTION_MAX_NEWS, False)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="查询新闻失败")
@@ -138,11 +139,11 @@ def collection():
 
     # 6拼接数据，返回页面
     data = {
-        "totalPage":totalPage,
-        "currentPage":currentPage,
-        "news_list":news_list
+        "totalPage": totalPage,
+        "currentPage": currentPage,
+        "news_list": news_list
     }
-    return render_template("news/user_collection.html",data=data)
+    return render_template("news/user_collection.html", data=data)
 
 
 # 获取/设置用户密码
