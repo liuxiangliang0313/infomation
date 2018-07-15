@@ -11,6 +11,7 @@ from info.utils.image_storage import image_storage
 from info.utils.response_code import RET
 from . import profile_blu
 
+
 # 发布新闻展示
 # 请求路径: /user/news_list
 # 请求方式:GET
@@ -64,7 +65,6 @@ def news_list():
         "news_list": news_list
     }
     return render_template('news/user_news_list.html', data=data)
-
 
 
 # 获取/设置,新闻发布

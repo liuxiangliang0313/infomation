@@ -289,13 +289,22 @@ def new_details(news_id):
 
         comment_list.append(comm_dict)
 
+    # 判断用户是否关注过新闻作者
+    is_followed = False
+    # 用户是否登陆，并且新闻要有作者
+    if g.user and news.user:
+        # 用户必须要在作者的粉丝列表中
+        if g.user in news.user.followers:
+            is_followed = True
+
     # 拼接数据，渲染到页面
     data = {
         "user_info": g.user.to_dict() if g.user else "",
         "news": news.to_dict(),
         "clicks_news_list": clicks_news_list,
         "is_collected": is_collected,
-        "comments": comment_list
+        "comments": comment_list,
+        "is_followed":is_followed
     }
 
     return render_template("news/detail.html", data=data)
