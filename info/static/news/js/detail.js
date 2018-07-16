@@ -5,7 +5,7 @@ function getCookie(name) {
 
 
 $(function(){
-
+    debugger
     // 打开登录框
     $('.comment_form_logout').click(function () {
         $('.login_form_con').show();

@@ -22,6 +22,7 @@ def logout():
     session.pop("user_id", None)
     session.pop("nick_name", None)
     session.pop("mobile", None)
+    session.pop("is_admin", None)
 
     return jsonify(errno=RET.OK, errmsg="退出成功")
 
@@ -71,8 +72,15 @@ def login():
     session["user_id"] = user.id
     session["nick_name"] = user.nick_name
     session["mobile"] = user.mobile
-    # 更新最后一次登陆时间到数据库
+    session["is_admin"] = False
+
     user.last_login = datetime.now()
+
+    # 更新时间到数据库
+    # try:
+    #     db.session.commit()
+    # except Exception as e:
+    #     current_app.logger.error(e)
 
     # 6.返回响应
     return jsonify(errno=RET.OK, errmsg="登陆成功")
@@ -173,7 +181,6 @@ def send_message():
     10.返回发送的状态
     :return:
     """
-
     # 1.接收参数
     json_data = request.data
     dict_data = json.loads(json_data)
@@ -258,5 +265,4 @@ def get_image_code():
     # 返回图片验证码
     response = make_response(image_data)
     response.headers["Content-Type"] = "image/jpg"
-
     return response

@@ -1,14 +1,12 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
-from flask import g
-from flask import render_template
 from flask_session import Session  # 只是用来指定session存储数据的位置
 from flask_sqlalchemy import SQLAlchemy
 import redis
 from flask_wtf import CSRFProtect
 from config import config_dict
-from flask import Flask
+from flask import Flask, render_template, g
 from flask_wtf.csrf import generate_csrf
 
 # 创建SQLAlchemy对象
@@ -63,30 +61,36 @@ def create_app(config_name):
     from info.modules.profile import profile_blu
     app.register_blueprint(profile_blu)
 
+    # 注册管理员蓝图到app对象中
+    from info.modules.admin import admin_blu
+    app.register_blueprint(admin_blu)
+
     # 将自定义过滤器装到默认过滤器列表中
+    # 参数1: 函数名称,  参数2:表示过滤器名称
     app.add_template_filter(news_class_filter, "news_class_filter")
 
     # 设置cookie中的csrf_token,可以使用请求钩子after_request
     # 开启了csrf校验之后
-    # 1向cookie中设置csrf_token, 2向请求头中设置csrf_token
-    # 服务器内部：取出二者的值csrf_token做校验
+    # 我们要做的事情: 1.向cookie中设置csrf_token, 2.向请求头中设置csrf_token
+    # 服务器内部: 取出二者的值csrf_token做校验
     @app.after_request
     def after_request(resp):
-        # 调用表单方法，获取csrf_token
-        csrf_token= generate_csrf()
+        # 调用表单方法,获取csrf_token
+        csrf_token = generate_csrf()
 
-        # 设置cookie中的csrf_token
-        resp.set_cookie("csrf_token",csrf_token)
+        # 设置cookie中csrf_token
+        resp.set_cookie("csrf_token", csrf_token)
 
         return resp
-    # 捕捉404异常
+
+    # 捕捉404异常,进行统一页面处理
     @app.errorhandler(404)
     @user_login_data
     def page_not_found(e):
         data = {
-            "user_info":g.user.to_dict() if g.user else ""
+            "user_info": g.user.to_dict() if g.user else ""
         }
-        return render_template('news/404.html',data=data)
+        return render_template('news/404.html', data=data)
 
     print(app.url_map)
     return app
